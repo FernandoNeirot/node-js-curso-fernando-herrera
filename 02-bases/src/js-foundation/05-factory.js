@@ -1,11 +1,7 @@
-const { getIdPlugin, getAgePlugin } = require('../plugins');
-const obj ={
-    name: 'John',
-    birthday: '1989-06-09',
-    country: 'USA'
-}
 
-const buildPerson = ({ name, birthday, country }) => {
+const buildMakePerson = ({ getIdPlugin, getAgePlugin }) => {
+
+return ({ name, birthday, country }) => {
     return {
         id: getIdPlugin(),
         name,
@@ -14,6 +10,7 @@ const buildPerson = ({ name, birthday, country }) => {
         country
     }
 }
-
-const person = buildPerson(obj);
-console.log(person);
+}
+module.exports = {
+    buildMakePerson
+}
