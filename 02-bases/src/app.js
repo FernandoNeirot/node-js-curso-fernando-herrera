@@ -23,6 +23,11 @@
 
 
 // !06-promises.js
-const { getPokemonById } = require('./js-foundation/06-promises');
-getPokemonById(1).then((pokemon) => console.log(pokemon)).catch(() => console.error("Intente de nuevo"));
+// const { getPokemonById } = require('./js-foundation/06-promises');
+// getPokemonById(1).then((pokemon) => console.log(pokemon)).catch(() => console.error("Intente de nuevo"));
 
+const { buildLogger } = require('./plugins');
+
+const logger = buildLogger('app.js');
+logger.log('Hola mundo');
+logger.error('Error de prueba');
