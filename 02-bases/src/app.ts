@@ -1,8 +1,7 @@
-
-// const { emailTemplate } = require('./js-foundation/01-template');
+// import { emailTemplate } from './js-foundation/01-template';
 // console.log(emailTemplate);
-// require('./js-foundation/02-destructuring');
-// const { getUserById } = require('./js-foundation/03-callbacks');
+// import './js-foundation/02-destructuring';
+// import { getUserById } from './js-foundation/03-callbacks';
 // const id = 22;
 // getUserById(id, (err, user) => {
 //     if (err) {
@@ -11,9 +10,8 @@
 //     return console.log(user);
 // });
 
-// !05-factory.js
-// const { buildMakePerson } = require('./js-foundation/05-factory');
-// const { getIdPlugin, getAgePlugin } = require('./plugins');
+// import { buildMakePerson } from './js-foundation/05-factory';
+// import { getIdPlugin, getAgePlugin } from './plugins';
 
 // const makePerson = buildMakePerson({ getIdPlugin, getAgePlugin });
 
@@ -22,11 +20,10 @@
 // console.log(person);
 
 
-// !06-promises.js
-// const { getPokemonById } = require('./js-foundation/06-promises');
+// import { getPokemonById } from './js-foundation/06-promises';
 // getPokemonById(1).then((pokemon) => console.log(pokemon)).catch(() => console.error("Intente de nuevo"));
 
-const { buildLogger } = require('./plugins');
+import { buildLogger } from './plugins';
 
 const logger = buildLogger('app.js');
 logger.log('Hola mundo');

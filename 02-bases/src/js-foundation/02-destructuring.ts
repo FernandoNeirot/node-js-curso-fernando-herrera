@@ -1,3 +1,2 @@
-
 const { USERDOMAIN, PROCESSOR_ARCHITECTURE } = process.env;
 console.table({ USERDOMAIN, PROCESSOR_ARCHITECTURE });
