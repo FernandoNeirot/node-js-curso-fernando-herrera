@@ -23,8 +23,8 @@
 // import { getPokemonById } from './js-foundation/06-promises';
 // getPokemonById(1).then((pokemon) => console.log(pokemon)).catch(() => console.error("Intente de nuevo"));
 
-import { buildLogger } from './plugins';
+// import { buildLogger } from './plugins';
 
-const logger = buildLogger('app.js');
-logger.log('Hola mundo');
-logger.error('Error de prueba');
+// const logger = buildLogger('app.js');
+// logger.log('Hola mundo');
+// logger.error('Error de prueba');
