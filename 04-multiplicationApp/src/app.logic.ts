@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { yarg } from './plugins/args.plugin.ts';
+import { yarg } from './config/plugins/args.plugin.ts';
 const {b, l, s} = yarg
 
 const number = b;

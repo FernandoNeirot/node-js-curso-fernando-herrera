@@ -1,5 +1,5 @@
 // import fs from 'fs';
-import { yarg } from './plugins/args.plugin.ts';
+import { yarg } from './config/plugins/args.plugin.ts';
 import { ServerApp } from './presentation/server-app.ts';
 
 // const number = 5;
@@ -22,6 +22,6 @@ import { ServerApp } from './presentation/server-app.ts';
 })();
 
 async function main() {
-  const serverApp = new ServerApp();
-  serverApp.run();
+  const {b: base, l: limit, s: showTable, n: name, d: destination} = yarg;
+  ServerApp.run({base, limit, showTable, name, destination});
 }

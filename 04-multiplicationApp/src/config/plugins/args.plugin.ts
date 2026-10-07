@@ -23,6 +23,18 @@ export const yarg = await yargs(hideBin(process.argv))
     describe: "Show the table",
     default: false,
   })
+  .options("n", {
+    alias: "name",
+    type: "string",    
+    describe: "File name",
+    default: "table",
+  })
+  .options("d", {
+    alias: "destination",
+    type: "string",
+    describe: "Destination of the file",
+    default: "./outputs",
+  })
   .check((argv) => {
     if (argv.b < 1) {
       throw new Error("The base must be greater than 0");
