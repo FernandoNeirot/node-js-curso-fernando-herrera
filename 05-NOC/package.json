@@ -14,10 +14,12 @@
   "type": "commonjs",
   "dependencies": {
     "cron": "^4.4.0",
+    "dotenv": "^18.0.7",
+    "env-var": "^7.5.0",
     "json-server": "^1.0.0-beta.15"
   },
   "devDependencies": {
     "@types/node": "^26.6.4",
-    "typescript": "^7.0.2"
+    "typescript": "^5.9.3"
   }
 }

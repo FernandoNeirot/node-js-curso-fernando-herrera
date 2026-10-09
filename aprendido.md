@@ -1,89 +1,41 @@
-# Lo que fui usando
+# 05-NOC
 
-Notas del curso, carpeta por carpeta. Sirve para recordar el concepto y la herramienta, no para reemplazar el código.
+Servicio que, cada 5 segundos, pregunta si `http://localhost:3000` responde y deja el resultado en archivos de log.
 
-## 01-fundamentos
+El arranque está en `src/app.ts`. Ahí se llama `Server.start()`. `server.ts` solo define la clase: si `start()` también se ejecuta al importar el archivo, el cron queda registrado dos veces y cada evento se guarda duplicado.
 
-JavaScript puro en Node, sin `package.json`.
+## Capas
 
-- `console.log` y variables.
-- `fs`: leer un archivo con `readFileSync` y escribir otro con `writeFileSync`.
-- Reemplazar texto con una expresión regular (`/react/ig`).
-- Contar palabras con `split` y `match`.
-- Event loop: `setTimeout` no frena el programa. Aunque el tiempo sea `0`, el callback corre después del código síncrono.
+El dominio no sabe si el log va a un archivo, a una base o a la consola. La infraestructura sí.
 
-Archivos: `app.js`, `app2.js`, `app3.js`, `app4.js`.
+- `domain/entities/log.entity.ts`: el log. Niveles `low`, `medium` y `high`, más `message` y `createdAt`. `fromJson` reconstruye un log desde una línea del archivo.
+- `domain/datasource/log.datasource.ts`: contrato abstracto. Obliga a implementar `saveLog` y `getLogs`. No se instancia.
+- `domain/repository/log.repositor.ts`: el mismo contrato, visto desde los casos de uso. El caso de uso pide “guardá este log”; no elige el archivo.
+- `domain/use-cases/checks/check-service.ts`: hace `fetch` a la URL. Si responde bien, guarda un log `low` y llama al callback de éxito. Si falla, guarda un log `high` y llama al de error.
+- `infrastructure/datasources/file-system.datasource.ts`: implementación concreta. Crea `logs/` y escribe `logs-all.log`, `logs-medium.log` y `logs-high.log`.
+- `infrastructure/datasources/repositoties/log.repository.impl.ts`: recibe un datasource en el constructor y le delega `saveLog` y `getLogs`.
+- `presentation/server.ts`: arma el cron, el repositorio y el chequeo.
+- `presentation/cron/cron-service.ts`: envuelve `CronJob` para no usar el paquete directo en el server.
 
-## 02-bases
+`CheckService` recibe el repositorio y los dos callbacks por el constructor. `LogRepositoryImpl` recibe el datasource igual. Cambiar el destino del log no obliga a tocar el caso de uso.
 
-Primera app con estructura. Empezó en JavaScript y quedó migrada a TypeScript.
+## Qué hace cada pieza al correr
 
-Conceptos:
+`CronService.createJob` recibe la expresión `*/5 * * * * *` (cada 5 segundos) y la función `onTick`. `job.start()` lo deja activo.
 
-- `require` / `module.exports`, y después `import` / `export`.
-- Destructuring de `process.env`.
-- Callbacks: `getUserById` avisa error o usuario.
-- Factory: `buildMakePerson` recibe `getIdPlugin` y `getAgePlugin` y devuelve una función.
-- `async` / `await` para pedir un Pokémon.
-- Plugins separados: id, edad, HTTP y logger. `plugins/index.ts` los reexporta.
-- Declaración de tipos propia para `get-age` (`src/types/get-age.d.ts`).
+En cada tick, `CheckService.execute` pide la URL. El datasource agrega una línea JSON:
 
-Herramientas:
+- todo log entra en `logs-all.log`;
+- `low` no se copia a otro archivo;
+- `medium` también va a `logs-medium.log`;
+- `high` también va a `logs-high.log`.
 
-- npm y pnpm. Scripts `dev`, `build` y `start`.
-- Nodemon para reiniciar al guardar.
-- TypeScript (`tsc`), `tsconfig.json`, carpeta `dist`.
-- Jest y ts-jest. Tests en `tests/`, coverage en `coverage/`.
-- `.gitignore` para `node_modules`, `dist` y logs.
+La carpeta `logs/` se crea con `mkdirSync`. `writeFileSync` no crea directorios: si se usa sobre `logs/`, Node crea un archivo con ese nombre y después falla al abrir `logs/logs-all.log`.
 
-Paquetes: `axios`, `uuid`, `get-age`, `winston`.
+## Herramientas
 
-## 03-typescript
-
-TypeScript desde el inicio, con un ejemplo de héroes.
-
-- Interfaces (`Hero`).
-- Módulos: datos en `src/data`, lógica en `src/services`.
-- `find`, optional chaining (`hero?.name`) y `??`.
-- `tsc` compila `src` a `dist`. El script `start` ejecuta `dist/app.js`, no el `.ts`.
-- `verbatimModuleSyntax`: en CommonJS no se puede usar `export` tal cual. Con esa opción en `false`, TypeScript lo convierte a `exports`.
-- Node puede ejecutar TypeScript con `--experimental-strip-types`, pero no transforma `import` a `require`.
-
-## 04-multiplicationApp
-
-App de consola que arma la tabla de multiplicar y la guarda en un archivo.
-
-- Argumentos con `yargs`: `-b` base, `-l` límite, `-s` mostrar, `-n` nombre, `-d` destino.
-- `hideBin(process.argv)` saca `node` y el nombre del script.
-- Capas: `domain` (casos de uso), `presentation` (`ServerApp`), `config` (argumentos).
-- `CreateTable` arma el texto. `SaveFile` crea la carpeta y escribe el `.txt`.
-- Proyecto ESM (`"type": "module"`). Los imports relativos llevan extensión `.ts`.
-- Jest con `spyOn` y `mockImplementation` para no tocar el disco en los tests.
-- `ts-node` funciona con TypeScript 5.9. Con TypeScript 7 se cae porque ya no existe `ts.sys`.
-
-Comando de desarrollo: `npm run dev` (Nodemon pasa `-b 5 -s`).
-
-## 05-NOC
-
-Servicio que revisa si una URL responde, repetido con un cron.
-
-- `Server.start()` arranca el proceso.
-- `CronService` crea un `CronJob`. La expresión `*/5 * * * * *` corre cada 5 segundos.
-- `CheckService` hace `fetch` a una URL. Si responde bien llama al callback de éxito; si falla, al de error.
-- Misma idea de capas: `domain/use-cases` y `presentation`.
-- Paquete `cron`.
-
-## 06-json-server
-
-API falsa para probar el NOC u otras peticiones, sin escribir un backend.
-
-- `db.json` define `posts`, `comments` y `profile`.
-- `npm start` ejecuta `json-server --watch db.json --port 3000`.
-- Al cambiar `db.json`, el servidor recarga los datos.
-
-## Git, en la raíz
-
-- El repositorio está en esta carpeta `Node`.
-- `.gitignore` dentro de cada proyecto evita subir `node_modules` y `dist`.
-- El remoto es `node-js-curso-fernando-herrera`.
-- Identidad local del repo: FernandoNeirot / fernando.neirot@hotmail.com.
+- TypeScript en CommonJS. `verbatimModuleSyntax` está en `false` para poder usar `export class`.
+- `"types": ["node"]` y `@types/node` para que existan `fs` y el resto de Node.
+- `esModuleInterop` para `import fs from "fs"`.
+- Script `dev`: `tsnd --respawn --clear src/app.ts`. `ts-node` funciona con TypeScript 5.9. Con TypeScript 7 se cae porque ya no existe `ts.sys`.
+- Paquete `cron` para el job. `json-server` está en las dependencias; el chequeo apunta a un servidor en el puerto 3000.
